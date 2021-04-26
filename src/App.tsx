@@ -1,24 +1,29 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect } from 'react';
 import './App.css';
+import { Switch, Route, Redirect } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Employees } from './ui/Employees';
+import { WorkLogs } from './ui/WorkLogs';
+import { getEmployeesTC, getWorkLogTC } from './bll/Reducer';
+import { AppStateType } from './bll/Store';
+import { EmployeesType, WorkLogType } from './dal/Api';
 
 function App() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getEmployeesTC());
+    dispatch(getWorkLogTC());
+  }, []);
+  const employees = useSelector<AppStateType, Array<EmployeesType>>(state => state.app.employees);
+  const worklogs = useSelector<AppStateType, Array<WorkLogType>>(state => state.app.worklogs);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='App'>
+      <Switch>
+        <Route exact path='/' render={() => <Redirect to={'/employees'} />} />
+        <Route exact path='/employees' render={() => <Employees employees={employees} />} />
+        <Route exact path='/workLog/:employeeId?' render={() => <WorkLogs worklogs={worklogs} employees={employees} />} />
+      </Switch>
     </div>
   );
 }
